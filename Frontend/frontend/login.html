@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVault | Login</title>
+  <style>
+    /* === KEEP ALL PREVIOUS STYLES === */
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:#f5faff; color:#333; }
+    header { background: linear-gradient(90deg, #0d6efd, #20c997); color:white; padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { margin:0; font-size:1.5rem; font-weight:bold; }
+    header nav { display:flex; gap:1rem; }
+    header nav a { color:white; text-decoration:none; font-weight:600; background: rgba(255,255,255,0.2); padding:0.6rem 1.2rem; border-radius:8px; font-size:1rem; transition:background 0.3s, transform 0.2s; }
+    header nav a:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
+    .container { display:flex; min-height: calc(100vh - 70px); }
+    .welcome { flex:1; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; border-right:1px solid #e0e0e0; text-align:center; }
+    .welcome img { max-width:280px; max-height:280px; margin-top:1rem; }
+    .login-section { flex:2; display:flex; align-items:center; justify-content:center; padding:2rem; }
+    .card { background:white; padding:2rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); width:100%; max-width:500px; }
+    .card h2 { text-align:center; margin-bottom:1.5rem; color:#0d6efd; }
+    .toggle { display:flex; margin-bottom:1.5rem; border-radius:8px; overflow:hidden; border:1px solid #ccc; }
+    .toggle button { flex:1; padding:0.8rem; border:none; cursor:pointer; font-size:1rem; font-weight:bold; transition: background 0.3s; }
+    .toggle button.active { background:#20c997; color:white; }
+    .toggle button:not(.active) { background:#f8f9fa; color:#333; }
+    form { display:none; }
+    form.active { display:block; }
+    .field { margin-bottom:1rem; display:flex; flex-direction:column; }
+    label { font-weight:600; margin-bottom:0.3rem; font-size:0.9rem; }
+    input { padding:0.7rem; border:1px solid #ccc; border-radius:8px; font-size:1rem; }
+    .submit { width:100%; padding:0.9rem; background:#0d6efd; color:white; border:none; border-radius:8px; font-size:1rem; font-weight:bold; cursor:pointer; transition: background 0.3s; margin-top:1rem; }
+    .submit:hover { background:#0b5ed7; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>MedVault</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="signup.html">Sign Up</a>
+  </nav>
+</header>
+
+<div class="container">
+  <!-- Welcome Section -->
+  <div class="welcome" id="welcomeSection">
+    <h2 id="welcomeTitle">Welcome Back, Patient!</h2>
+    <p id="welcomeText">Login to securely access your MedVault account.</p>
+    <img id="welcomeImage" src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Healthcare">
+  </div>
+
+  <!-- Login Section -->
+  <div class="login-section">
+    <div class="card">
+      <h2>Login</h2>
+
+      <div class="toggle">
+        <button id="patientBtn" class="active">Patient</button>
+        <button id="doctorBtn">Doctor</button>
+        <button id="adminBtn">Admin</button>
+      </div>
+
+      <!-- Patient Form -->
+      <form id="patientForm" class="active">
+        <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field"><label>Password</label><input type="password" name="password" required></div>
+        <button type="submit" class="submit">Login</button>
+      </form>
+
+      <!-- Doctor Form -->
+      <form id="doctorForm">
+        <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field"><label>Password</label><input type="password" name="password" required></div>
+        <button type="submit" class="submit">Login</button>
+      </form>
+
+      <!-- Admin Form -->
+      <form id="adminForm">
+        <div class="field"><label>Admin ID</label><input type="text" name="adminId" required></div>
+        <div class="field"><label>Password</label><input type="password" name="password" required></div>
+        <button type="submit" class="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const patientBtn = document.getElementById("patientBtn");
+const doctorBtn = document.getElementById("doctorBtn");
+const adminBtn = document.getElementById("adminBtn");
+
+const patientForm = document.getElementById("patientForm");
+const doctorForm = document.getElementById("doctorForm");
+const adminForm = document.getElementById("adminForm");
+
+const welcomeTitle = document.getElementById("welcomeTitle");
+const welcomeText = document.getElementById("welcomeText");
+const welcomeImage = document.getElementById("welcomeImage");
+
+function setActive(role){
+  [patientBtn, doctorBtn, adminBtn].forEach(btn=>btn.classList.remove("active"));
+  [patientForm, doctorForm, adminForm].forEach(form=>form.classList.remove("active"));
+
+  if(role==="patient"){
+    patientBtn.classList.add("active"); patientForm.classList.add("active");
+    welcomeTitle.textContent="Welcome Back, Patient!";
+    welcomeText.textContent="Login to securely access your MedVault account.";
+    welcomeImage.src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png";
+  }else if(role==="doctor"){
+    doctorBtn.classList.add("active"); doctorForm.classList.add("active");
+    welcomeTitle.textContent="Welcome Back, Doctor!";
+    welcomeText.textContent="Access patient records and manage care securely.";
+    welcomeImage.src="https://cdn-icons-png.flaticon.com/512/387/387561.png";
+  }else if(role==="admin"){
+    adminBtn.classList.add("active"); adminForm.classList.add("active");
+    welcomeTitle.textContent="Welcome Back, Admin!";
+    welcomeText.textContent="Manage MedVault operations and oversee security.";
+    welcomeImage.src="https://cdn-icons-png.flaticon.com/512/1828/1828817.png";
+  }
+}
+
+patientBtn.addEventListener("click",()=>setActive("patient"));
+doctorBtn.addEventListener("click",()=>setActive("doctor"));
+adminBtn.addEventListener("click",()=>setActive("admin"));
+
+async function handleLogin(url, body, storageKey, redirect){
+  try{
+    const res = await fetch(url, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(res.ok){
+      localStorage.setItem(storageKey, data.token);
+      alert("✅ Login successful!");
+      window.location.href=redirect;
+    }else{
+      alert("❌ "+(data.message||"Login failed"));
+    }
+  }catch(err){
+    console.error(err);
+    alert("❌ Error connecting to server");
+  }
+}
+
+// Patient login
+patientForm.addEventListener("submit", e=>{
+  e.preventDefault();
+  const email=patientForm.email.value.trim();
+  const password=patientForm.password.value.trim();
+  //handleLogin("/api/auth/login/patient",{email,password},"patientToken","dashboard.html");
+  handleLogin("/api/auth/login/patient",{email,password},"token","dashboard.html");
+});
+
+// Doctor login
+doctorForm.addEventListener("submit", e=>{
+  e.preventDefault();
+  const email=doctorForm.email.value.trim();
+  const password=doctorForm.password.value.trim();
+  //handleLogin("/api/auth/login/doctor",{email,password},"doctorToken","doctor_dashboard.html");
+  handleLogin("/api/auth/login/doctor",{email,password},"token","doctor_dashboard.html");
+});
+
+// Admin login
+adminForm.addEventListener("submit", e=>{
+  e.preventDefault();
+  const adminId=adminForm.adminId.value.trim();
+  const password=adminForm.password.value.trim();
+  //handleLogin("/api/admin/login",{adminId,password},"adminToken","admin.html");
+  handleLogin("/api/admin/login",{adminId,password},"token","admin.html");
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor QR Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin: 0;
+      padding: 20px;
+    }
+    #reader {
+      width: 300px;
+      margin-top: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Doctor QR Scanner</h1>
+<p>Scan patient QR code below:</p>
+
+<div id="reader"></div>
+<div id="result">Scanned Patient Info will appear here</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+  const resultDiv = document.getElementById("result");
+
+  function onScanSuccess(decodedText, decodedResult) {
+    try {
+      const patient = JSON.parse(decodedText);
+      resultDiv.innerText = `Patient Name: ${patient.name}\nPatient ID: ${patient.patientId}`;
+      console.log("Scanned patient:", patient);
+    } catch (err) {
+      resultDiv.innerText = "Invalid QR code";
+      console.error(err);
+    }
+  }
+
+  function onScanFailure(error) {
+    // optional, handle scan failure
+    console.warn(`QR scan failed: ${error}`);
+  }
+
+  const html5QrCode = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+      const cameraId = cameras[0].id;
+      html5QrCode.start(
+        cameraId, 
+        { fps: 10, qrbox: 250 },
+        onScanSuccess,
+        onScanFailure
+      );
+    } else {
+      resultDiv.innerText = "No camera found";
+    }
+  }).catch(err => {
+    console.error(err);
+    resultDiv.innerText = "Error accessing camera";
+  });
+</script>
+
+</body>
+</html>

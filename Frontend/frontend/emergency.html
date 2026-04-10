@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVault - Emergency Data</title>
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; background:#f4faff; color:#071022; }
+
+    /* Header */
+    header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:15px 30px;
+      background: linear-gradient(90deg,#007bff,#00c6b7);
+      color:white; position:relative;
+    }
+    header .logo { font-weight:bold; font-size:22px; }
+    .profile { display:flex; align-items:center; gap:10px; cursor:pointer; }
+    .avatar-img { width:36px; height:36px; border-radius:50%; object-fit:cover; }
+
+    /* Dropdown */
+    #dropdown {
+      position:absolute; top:70px; right:30px;
+      background:white; color:#333;
+      border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      padding:20px; width:220px; text-align:center;
+    }
+    .hidden { display:none; }
+    .dropdown-avatar {
+      width:80px; height:80px; border-radius:50%; margin-bottom:10px; object-fit:cover;
+    }
+    .dropdown-name { font-weight:bold; margin:10px 0; }
+    .btn {
+      display:block; width:100%; margin:8px 0; padding:10px;
+      border:none; border-radius:6px;
+      background:#007bff; color:white; cursor:pointer;
+    }
+    .btn.logout { background:#28a745; }
+    .btn:hover { opacity:0.9; }
+
+    /* Layout */
+    .wrap { display:flex; min-height:calc(100vh - 64px); }
+    .sidebar { width:220px; background:white; border-right:1px solid #eee; padding:16px;
+               display:flex; flex-direction:column; }
+    .sidebar .title { font-weight:700; margin-bottom:12px; }
+    .sidebar .link { padding:10px 12px; margin-bottom:6px; border-radius:8px;
+                     color:#555; text-decoration:none; cursor:pointer; transition:.25s; }
+    .sidebar .link:hover { background:rgba(15,124,255,0.08); color:#007bff; }
+
+    .content { flex:1; padding:30px; display:flex; justify-content:center; align-items:flex-start; }
+
+    /* Emergency Form + Entries */
+    .emergency { width:100%; max-width:600px; background:white; border-radius:10px;
+                 padding:30px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    .hidden { display:none; }
+    input, button { margin:8px 0; padding:10px; width:100%; border-radius:6px; border:1px solid #ccc; }
+    button { background:#00c6b7; color:white; border:none; cursor:pointer; font-weight:600; }
+    button:hover { background:#009e8b; }
+    .info-item { background:#f0faff; margin:8px 0; padding:10px; border-radius:6px; }
+    .label-input { margin-top:5px; }
+  </style>
+</head>
+<body>
+  <!-- header -->
+  <header>
+    <div class="logo">MedVault</div>
+    <div class="profile" onclick="toggleDropdown()">
+      <img id="avatarImg" class="avatar-img" alt="Profile">
+      <span id="username"></span>
+    </div>
+    <div id="dropdown" class="hidden">
+      <img id="dropdownAvatar" class="dropdown-avatar" alt="Profile">
+      <p id="dropdownName" class="dropdown-name"></p>
+      <button class="btn">Login History</button>
+      <button class="btn logout">Sign out</button>
+    </div>
+  </header>
+
+<div class="wrap">
+  <!-- sidebar -->
+  <aside class="sidebar">
+    <div class="title">Menu</div>
+    <a class="link" href="dashboard.html">Dashboard</a>
+    <a class="link" href="emergency.html">Emergency Data</a>
+    <a class="link" href="records.html">Records</a>
+    <a class="link" href="doc-near-me.html">Doc Near Me</a>
+    <a class="link" href="patient-qr.html">QR</a>
+  </aside>
+
+    <!-- main content -->
+    <main class="content">
+      <section class="emergency">
+        <h2>Emergency Information</h2>
+        <button id="addDataBtn">Add Info</button>
+        <div id="formContainer" class="hidden">
+          <input type="text" id="label" class="label-input" placeholder="Custom Label (e.g. Report 1)">
+          <input type="text" id="allergy" placeholder="Allergy">
+          <input type="text" id="illness" placeholder="Chronic Illness">
+          <input type="number" id="bp" placeholder="BP">
+          <input type="number" id="sugar" placeholder="Blood Sugar">
+          <input type="number" id="weight" placeholder="Weight">
+          <button onclick="saveData()">Save</button>
+        </div>
+        <div id="emergencyList"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      document.getElementById('dropdown').classList.toggle('hidden');
+    }
+
+    // Emergency form toggle
+    document.getElementById('addDataBtn').addEventListener('click', () => {
+      document.getElementById('formContainer').classList.toggle('hidden');
+    });
+
+    // Save emergency info
+    function saveData() {
+      const label = document.getElementById('label').value.trim();
+      const allergy = document.getElementById('allergy').value.trim();
+      const illness = document.getElementById('illness').value.trim();
+      const bp = document.getElementById('bp').value.trim();
+      const sugar = document.getElementById('sugar').value.trim();
+      const weight = document.getElementById('weight').value.trim();
+
+      const list = document.getElementById('emergencyList');
+      const div = document.createElement('div');
+      div.className = "info-item";
+
+      let content = `<strong>${label || "Emergency Entry"}</strong><br>`;
+      content += `<small>Added on: ${new Date().toLocaleString()}</small><br>`;
+      if (allergy) content += `Allergy: ${allergy}<br>`;
+      if (illness) content += `Chronic Illness: ${illness}<br>`;
+      if (bp) content += `BP: ${bp}<br>`;
+      if (sugar) content += `Blood Sugar: ${sugar}<br>`;
+      if (weight) content += `Weight: ${weight}<br>`;
+
+      div.innerHTML = content;
+      list.appendChild(div);
+
+      // hide form
+      document.getElementById('formContainer').classList.add('hidden');
+
+      // clear form fields
+      document.getElementById('label').value = '';
+      document.getElementById('allergy').value = '';
+      document.getElementById('illness').value = '';
+      document.getElementById('bp').value = '';
+      document.getElementById('sugar').value = '';
+      document.getElementById('weight').value = '';
+    }
+
+    // Patient data loader (called by backend response)
+    function loadPatientData(data) {
+      document.getElementById("username").textContent = `${data.rollno} (${data.role})`;
+      document.getElementById("dropdownName").textContent = data.name;
+      document.getElementById("avatarImg").src = data.avatar;
+      document.getElementById("dropdownAvatar").src = data.avatar;
+    }
+  </script>
+</body>
+</html>

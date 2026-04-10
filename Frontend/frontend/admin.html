@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVault | Admin Dashboard</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin:0; padding:0; background:#f5faff; color:#333; }
+    header { background: linear-gradient(90deg,#0d6efd,#20c997); color:white; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { margin:0; font-size:1.5rem; }
+    header nav a { color:white; text-decoration:none; margin-left:1rem; font-weight:600; background: rgba(255,255,255,0.2); padding:0.6rem 1.2rem; border-radius:8px; transition:0.3s; }
+    header nav a:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
+    main { padding:2rem; }
+    table { width:100%; border-collapse: collapse; margin-top:1rem; background:white; border-radius:8px; overflow:hidden; }
+    th, td { border:1px solid #ccc; padding:0.7rem; text-align:left; font-size:0.95rem; }
+    th { background:#0d6efd; color:white; }
+    button { padding:0.5rem 1rem; margin-right:0.3rem; border:none; border-radius:5px; cursor:pointer; font-weight:bold; transition:0.2s; }
+    .approve { background:#20c997; color:white; }
+    .approve:hover { background:#17a589; }
+    .reject { background:#dc3545; color:white; }
+    .reject:hover { background:#b52a37; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MedVault Admin</h1>
+    <nav>
+      <a href="#" id="logoutBtn">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Pending Doctor Registrations</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>NMC Reg No</th>
+          <th>State Council</th>
+          <th>Hospital Address</th>
+          <th>Speciality</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="pendingDoctorsTableBody">
+        <tr><td colspan="8" style="text-align:center;">Loading...</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+<script>
+const API_BASE = "http://localhost:5001/api/admin";
+const tableBody = document.getElementById("pendingDoctorsTableBody");
+const logoutBtn = document.getElementById("logoutBtn");
+const token = localStorage.getItem("adminToken");
+
+// Protect route
+if (!token) {
+  alert("⚠️ Please log in as admin first.");
+  window.location.href = "login.html";
+}
+
+// Logout handler
+logoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("adminToken");
+  alert("✅ Logged out successfully!");
+  window.location.href = "login.html";
+});
+
+// Fetch pending doctors
+async function fetchPendingDoctors() {
+  try {
+    const res = await fetch(`${API_BASE}/pending-doctors`, {
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token 
+      }
+    });
+    const data = await res.json();
+    tableBody.innerHTML = "";
+
+    if (!res.ok) {
+      tableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">${data.message || "Failed to fetch doctors"}</td></tr>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No pending doctors</td></tr>`;
+      return;
+    }
+
+    data.forEach(doc => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${doc.fullName}</td>
+        <td>${doc.nmcRegNo}</td>
+        <td>${doc.stateMedicalCouncil}</td>
+        <td>${doc.hospitalAddress}</td>
+        <td>${doc.speciality}</td>
+        <td>${doc.email}</td>
+        <td>${doc.phone}</td>
+        <td>
+          <button class="approve" onclick="approveDoctor('${doc._id}')">✅ Approve</button>
+          <button class="reject" onclick="rejectDoctor('${doc._id}')">❌ Reject</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("❌ Error fetching doctors:", err);
+    tableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error fetching data</td></tr>`;
+  }
+}
+
+// Approve doctor
+async function approveDoctor(id) {
+  if (!confirm("Are you sure you want to approve this doctor?")) return;
+  try {
+    const res = await fetch(`${API_BASE}/approve-doctor/${id}`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token 
+      }
+    });
+    const result = await res.json();
+    alert(result.message || "Doctor approved");
+    fetchPendingDoctors();
+  } catch (err) {
+    console.error(err);
+    alert("Error approving doctor");
+  }
+}
+
+// Reject doctor
+async function rejectDoctor(id) {
+  if (!confirm("Are you sure you want to reject this doctor?")) return;
+  try {
+    const res = await fetch(`${API_BASE}/reject-doctor/${id}`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token 
+      }
+    });
+    const result = await res.json();
+    alert(result.message || "Doctor rejected");
+    fetchPendingDoctors();
+  } catch (err) {
+    console.error(err);
+    alert("Error rejecting doctor");
+  }
+}
+
+// Load data on page load
+fetchPendingDoctors();
+</script>
+</body>
+</html>

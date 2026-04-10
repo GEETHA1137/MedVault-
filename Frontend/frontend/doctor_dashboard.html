@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MedVault — Doctor Dashboard</title>
+  <style>
+    :root {
+      --blue:#0f7cff; --teal:#00c6a7; --bg:#f4fbfb; --muted:#6b7280; --card:#fff;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ font-family:Inter,system-ui,"Segoe UI",Roboto; background:var(--bg); color:#071022; }
+
+    /* === topbar === */
+    .topbar{ height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; background:linear-gradient(90deg,var(--blue),var(--teal)); color:#fff; font-weight:600; position:relative; }
+    .top-actions{ display:flex; gap:14px; align-items:center;}
+    .chip{ background:var(--teal); color:#fff; border-radius:8px; padding:6px 12px; font-size:14px; font-weight:500; }
+    .search { display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.15); padding:8px 14px; border-radius:10px; }
+    .search input { flex:1; background:transparent; border:0; outline:none; color:#fff; font-size:15px; }
+    .search button { background:var(--blue); color:#fff; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:500 }
+
+    /* === layout === */
+    .wrap{ display:flex; min-height:calc(100vh - 64px); }
+    .sidebar{ width:220px; background:var(--card); border-right:1px solid #eee; padding:16px; display:flex; flex-direction:column; }
+    .sidebar .title{ font-weight:700; margin-bottom:12px; color:var(--blue); }
+    .sidebar .link{ padding:10px 12px; margin-bottom:6px; border-radius:8px; color:var(--muted); text-decoration:none; cursor:pointer; transition:.25s; }
+    .sidebar .link:hover{ background:rgba(15,124,255,0.08); color:#0f7cff; }
+
+    .content{ flex:1; padding:24px 24px 24px 0; display:flex; flex-direction:column; gap:20px; }
+
+    /* === main records card === */
+    .card{ background:var(--card); border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(2,6,23,0.05); }
+    .card h3{ margin-bottom:12px; font-size:1.05rem; font-weight:600; color:var(--blue);}
+    .muted{ color:var(--muted); font-style:italic; }
+
+    /* === table === */
+    .table-wrap{ overflow-x:auto; margin-top:8px;}
+    table{ width:100%; border-collapse:collapse; min-width:720px;}
+    th,td{ padding:12px 14px; text-align:left; border-bottom:1px solid #eee; font-size:14px;}
+    th{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;}
+    tr:hover{ background:rgba(15,124,255,0.04); cursor:pointer; }
+    .status{ padding:6px 10px; border-radius:999px; font-size:13px; display:inline-block; }
+    .status.approved{ background:rgba(0,198,167,0.13); color:var(--teal);}
+    .status.pending{ background:rgba(239,68,68,0.13); color:#ef4444;}
+    .status.requested{ background:rgba(15,124,255,0.13); color:var(--blue);}
+
+    /* === profile dropdown === */
+    .profile-btn img { width:40px; height:40px; border-radius:50%; cursor:pointer; border:2px solid #fff; }
+    .dropdown { position:absolute; top:64px; right:20px; background:#fff; border-radius:12px; box-shadow:0 6px 20px rgba(2,6,23,0.12); padding:16px; width:200px; display:none; flex-direction:column; align-items:center; z-index:1000;}
+    .dropdown img{ width:70px; height:70px; border-radius:50%; margin-bottom:10px; }
+    .dropdown h4{ margin:5px 0; font-size:1rem;}
+    .dropdown button{ margin-top:10px; background:var(--blue); color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; transition:.2s;}
+    .dropdown button:hover{ background:#005fcc; }
+
+    @media (max-width:900px){
+      .wrap{ flex-direction:column; }
+      .sidebar{ width:100%; flex-direction:row; gap:8px; overflow:auto; }
+      .content{ padding:24px 0;}
+    }
+  </style>
+</head>
+<body>
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="brand">medvault</div>
+    <div class="search" role="search" aria-label="Search patient by ID">
+      <input id="searchInput" type="text" placeholder="Enter Patient ID" aria-label="Search by Patient ID">
+      <button id="searchBtn">Search</button>
+    </div>
+    <div class="top-actions">
+      <div id="approvedCount" class="chip" title="Approved count">Approved 0</div>
+      <div id="pendingCount" class="chip" title="Pending count">Pending 0</div>
+    </div>
+    <!-- profile button -->
+    <div class="profile-btn" id="profileBtn">
+      <img id="profilePic" src="" alt="profile"/>
+    </div>
+    <!-- dropdown -->
+    <div class="dropdown" id="dropdownMenu">
+      <img id="dropdownPic" src="" alt="profile"/>
+      <h4 id="doctorName"></h4>
+      <p id="doctorId" style="color:#6b7280; font-size:0.9rem;"></p>
+      <button id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- sidebar -->
+    <aside class="sidebar">
+      <div class="title">Menu</div>
+      <a class="link" href="doctor_dashboard.html">Dashboard</a>
+    </aside>
+
+    <!-- content -->
+    <main class="content">
+      <section class="card">
+        <h3>Patient Records</h3>
+        <div class="table-wrap">
+          <table id="recordsTable">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Sex</th>
+                <th>DOB</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Rows inserted by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("⚠️ Not logged in!");
+      window.location.href = "login.html";
+    }
+
+    // Profile dropdown
+    const profileBtn = document.getElementById("profileBtn");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    profileBtn.addEventListener("click", () => {
+      dropdownMenu.style.display = dropdownMenu.style.display === "flex" ? "none" : "flex";
+    });
+    window.addEventListener("click", (e) => {
+      if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.style.display = "none";
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+
+    // Load doctor profile
+    fetch("http://localhost:5001/api/doctors/profile", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("doctorName").textContent = data.name;
+      document.getElementById("doctorNMC").textContent = `NMC: ${data.doctorId}`;
+      document.getElementById("doctorEmail").textContent = data.email;
+    })
+    .catch(() => console.error("Failed to load profile"));
+
+    // Request access
+    document.getElementById("searchBtn").addEventListener("click", async () => {
+      const patientId = document.getElementById("searchInput").value.trim();
+      if (!patientId) return alert("Enter Patient ID");
+
+      try {
+        const res = await fetch("http://localhost:5001/api/access/request", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ patientId })
+        });
+        const data = await res.json();
+        alert(data.message || data.error);
+        document.getElementById("searchInput").value = "";
+        loadCounts();
+      } catch (err) {
+        alert("Error sending request");
+      }
+    });
+
+    // Load approved patients
+    function loadPatients() {
+      fetch("http://localhost:5001/api/access/approved", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(patients => {
+        const tbody = document.getElementById("tableBody");
+        if (patients.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty">No approved patients yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = patients.map(p => `
+          <tr>
+            <td>${p.patientId}</td>
+            <td>${p.fullName}</td>
+            <td>${new Date(p.dob).toLocaleDateString()}</td>
+            <td>${p.sex}</td>
+            <td>${p.bloodGroup || 'N/A'}</td>
+            <td><button class="btn btn-success" onclick="viewRecords('${p.patientId}')">View Records</button></td>
+          </tr>
+        `).join('');
+      })
+      .catch(() => {
+        document.getElementById("tableBody").innerHTML = '<tr><td colspan="6" class="empty">Error loading patients</td></tr>';
+      });
+    }
+
+    // Load counts
+    function loadCounts() {
+      fetch("http://localhost:5001/api/access/approved", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("approvedCount").textContent = `Approved: ${data.length}`;
+      });
+
+      fetch("http://localhost:5001/api/access/pending-count", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("pendingCount").textContent = `Pending: ${data.count}`;
+      });
+    }
+
+    // View records (you'll implement this)
+    function viewRecords(patientId) {
+      // TODO: Navigate to records page or show modal
+      alert(`View records for ${patientId}`);
+      // Example: window.location.href = `records.html?patientId=${patientId}`;
+    }
+
+    loadPatients();
+    loadCounts();
+  </script>
+</body>
+</html>

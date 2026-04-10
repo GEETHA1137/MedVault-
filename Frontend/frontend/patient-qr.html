@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Patient QR Code</title>
+<style>
+  /* Reset & body */
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f0f4ff, #d9e4ff);
+    color: #071022;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: linear-gradient(90deg, #007bff, #00c6b7);
+    color: white;
+  }
+  header .logo { font-weight: bold; font-size: 22px; }
+  header .profile {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    color: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  /* Layout */
+  .wrap {
+    display: flex;
+    min-height: calc(100vh - 64px);
+  }
+  .sidebar {
+    width: 220px;
+    background: white;
+    border-right: 1px solid #eee;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar .title { font-weight: 700; margin-bottom: 12px; }
+  .sidebar .link {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    color: #555;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  .sidebar .link:hover { background: rgba(15,124,255,0.08); color: #007bff; }
+
+  /* Content */
+  .content {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  /* QR Card */
+  .qr-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+  }
+  .qr-card h1 { font-size: 1.8rem; color: #333; }
+  .qr-card p { margin: 5px 0 20px 0; color: #555; }
+  #qrcode { margin: 20px 0; }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background: #0f7cff;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:disabled { background: #cccccc; cursor: not-allowed; }
+  button:hover:enabled { background: #005fcc; }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">MedVault</div>
+    <div class="profile">
+      <div class="avatar" id="avatar">P</div>
+      <span id="username">Patient</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="title">Menu</div>
+      <a class="link" href="dashboard.html">Dashboard</a>
+      <a class="link" href="emergency.html">Emergency Data</a>
+      <a class="link" href="records.html">Records</a>
+      <a class="link" href="doc-near-me.html">Doc Near Me</a>
+      <a class="link" href="patient-qr.html">QR</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content">
+      <div class="qr-card">
+        <h1 id="patientName">Loading...</h1>
+        <p id="patientId">Patient ID: Loading...</p>
+        <div id="qrcode">Loading QR...</div>
+        <button id="downloadBtn" disabled>Download QR Code</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+async function loadQr() {
+  const qrcodeDiv = document.getElementById("qrcode");
+  const downloadBtn = document.getElementById("downloadBtn");
+
+  try {
+    const token = localStorage.getItem("patientToken");
+    if (!token) throw new Error("You are not logged in. Please login.");
+
+    const res = await fetch("http://localhost:5001/api/patient/qr", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      const msg = (await res.json()).error || "Failed to load QR code.";
+      throw new Error(msg);
+    }
+
+    const data = await res.json();
+
+    // Display patient info
+    document.getElementById("patientName").innerText = data.fullName || "Patient";
+    document.getElementById("patientId").innerText = "Patient ID: " + (data.patientId || "Unknown");
+
+    // Display QR code
+    if (data.qrCode) {
+      qrcodeDiv.innerHTML = `<img src="${data.qrCode}" alt="Patient QR" width="250" height="250"/>`;
+      downloadBtn.disabled = false;
+
+      downloadBtn.onclick = () => {
+        const link = document.createElement("a");
+        link.href = data.qrCode;
+        link.download = `Patient-${data.patientId || "QR"}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    } else {
+      qrcodeDiv.innerHTML = `<p style="color:red;">QR code not available.</p>`;
+    }
+
+  } catch (err) {
+    console.error("QR Load Error:", err);
+    qrcodeDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    downloadBtn.disabled = true;
+
+    // Optional redirect if not logged in
+    if (err.message.toLowerCase().includes("login")) {
+      setTimeout(() => { window.location.href = "login.html"; }, 2000);
+    }
+  }
+}
+
+window.addEventListener("DOMContentLoaded", loadQr);
+</script>
+
+</body>
+</html>

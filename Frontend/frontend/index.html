@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVault - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Open+Sans&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #0d6efd;
+      --primary-green: #20c997;
+      --text-dark: #333;
+      --text-light: #fff;
+      --font-heading: 'Poppins', sans-serif;
+      --font-body: 'Open Sans', sans-serif;
+      --btn-radius: 6px;
+      --btn-padding: 0.6rem 1.2rem;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: #f9fcff;
+      color: var(--text-dark);
+    }
+
+/* 🌐 Unified Header Styling */
+header {
+  background: linear-gradient(90deg, #0d6efd, #20c997);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+header nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1.2rem;   /* ✅ matches index.html button size */
+  border-radius: 8px;       /* ✅ slightly more rounded */
+  font-size: 1rem;
+  transition: background 0.3s, transform 0.2s;
+}
+
+header nav a:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.05);   /* ✅ smooth hover effect */
+}
+
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3rem 5%;
+      background: linear-gradient(135deg, #e6f9ff, #f5fffa);
+      gap: 2rem;
+    }
+
+    .hero-text {
+      max-width: 50%;
+    }
+
+    .hero-text h2 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      color: var(--primary-blue);
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .hero-text p {
+      font-size: 1.05rem;
+      margin: 1rem 0;
+      color: #444;
+    }
+
+    .cta a {
+      margin-right: 1rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: var(--btn-radius);
+      font-weight: 600;
+      text-decoration: none;
+      font-family: var(--font-heading);
+      transition: 0.3s;
+      display: inline-block;
+    }
+
+    .signup-btn {
+      background: var(--primary-green);
+      color: white;
+    }
+
+    .signup-btn:hover { background: #17a589; }
+
+    .login-btn {
+      background: var(--primary-blue);
+      color: white;
+    }
+
+    .login-btn:hover { background: #0b5ed7; }
+
+    .hero img {
+      max-width: 42%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    section {
+      padding: 3rem 10%;
+      text-align: center;
+    }
+
+    section h3 {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      color: var(--primary-green);
+      margin-bottom: 1rem;
+    }
+
+    section p {
+      font-size: 1rem;
+      color: #555;
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .feature {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 250px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .feature img {
+      margin-bottom: 1rem;
+    }
+
+    .feature h4 {
+      font-family: var(--font-heading);
+      color: var(--primary-blue);
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .feature p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--primary-blue);
+      color: white;
+      font-family: var(--font-heading);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MedVault</h1>
+    <nav>
+      <a href="signup.html">Sign Up</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-text">
+      <h2>All Your Health Records in One Safe Place</h2>
+      <p>MedVault keeps your medical information private, secure, and easy to share with your doctor when you need it. No more carrying files or worrying about lost reports.</p>
+      <div class="cta">
+        <a href="signup.html" class="signup-btn">Create Account</a>
+        <a href="login.html" class="login-btn">Login</a>
+      </div>
+    </div>
+    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267bd?auto=format&fit=crop&w=900&q=80" alt="Healthcare" />
+  </section>
+
+  <!-- About Section -->
+  <section>
+    <h3>About MedVault</h3>
+    <p>MedVault is your digital health locker. We make sure your health records are stored safely in the cloud, and only you and trusted doctors can see them. Think of it as a personal health diary that you’ll never lose and can open anywhere, anytime.</p>
+  </section>
+
+  <!-- Features Section -->
+  <section>
+    <h3>Why People Love MedVault</h3>
+    <div class="features">
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920349.png" width="60" alt="Security"/>
+        <h4>Safe & Private</h4>
+        <p>Your information stays between you and your doctors. Nobody else can see it.</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" width="60" alt="Cloud"/>
+        <h4>Always With You</h4>
+        <p>Access your reports anytime — on your phone, laptop, or tablet.</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966481.png" width="60" alt="Doctor"/>
+        <h4>Doctor Friendly</h4>
+        <p>Share your reports instantly with trusted doctors for faster care.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 MedVault | Making Healthcare Simple & Secure
+  </footer>
+</body>
+</html>
